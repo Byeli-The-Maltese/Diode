@@ -2,7 +2,7 @@ namespace Diode.Nets;
 
 public abstract record ElectricalUpdate;
 
-public sealed record NodeStateChange(string NodeName, L6 State, object? Value) : ElectricalUpdate;
+public sealed record NodeUpdate(string NodeName, L6 State, object? Value) : ElectricalUpdate;
 
 public sealed record NodeLifetime(string NodeName, LifetimeEvent Event) : ElectricalUpdate;
 
