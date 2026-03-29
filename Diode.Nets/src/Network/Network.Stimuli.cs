@@ -22,6 +22,7 @@ public partial class Network
         try
         {
             nodes.TryGet(net).Match(node => node.TakeInput(links.StimuliFakeId, voltage));
+            FlushVoltages();
         }
         finally
         {
@@ -45,7 +46,7 @@ public partial class Network
     {
         if (options.LogNodeStateChange)
             stimHistory = stimHistory.Add(
-                new NodeStateChange(node.GetFullName(), node.State, value)
+                new NodeUpdate(node.GetFullName(), node.State, value)
             );
     }
 
