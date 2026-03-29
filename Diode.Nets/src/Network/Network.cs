@@ -46,7 +46,7 @@ public partial class Network : IDisposable
             while (pushQueue.TryDequeue(out VoltagePush? next))
                 executionBuffer.Add(next);
             foreach (VoltagePush push in executionBuffer)
-                links.TryGet(push.PushThroush).Match(link => link.ReceivePush(push));
+                links.TryGet(push.PushThrough).Match(link => link.ReceivePush(push));
             executionBuffer.Clear();
         }
     }
