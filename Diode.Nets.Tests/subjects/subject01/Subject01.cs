@@ -14,6 +14,4 @@ public class Subject01 : ICircuit
         ;
 
     public ImmutableList<ElectricalUpdate> StimulateNets() => Host.Stimulate(counter, 5);
-
-    internal void EnableLogging() => Host.SetOptions(Network.Options.LogAll);
 }

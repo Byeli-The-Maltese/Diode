@@ -51,10 +51,10 @@ public partial class Network : IDisposable
         }
     }
 
-    public static IDisposable Create<TCircuit>(out TCircuit topLevel)
+    public static IDisposable Create<TCircuit>(out TCircuit topLevel, Options options = default)
     where TCircuit : ICircuit<None>, new()
     {
-        var network = new Network();
+        var network = new Network { options = options };
         network.MintTopLevelCommission(None.Instance).Sub<TCircuit, None>(None.Instance, out Sub topLevelSub, TopLevel);
         network.FlushVoltages();
         if (network.subs.TryGet(topLevelSub).Unwrap().Circuit is not TCircuit correctTopLevel)
