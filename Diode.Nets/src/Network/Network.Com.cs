@@ -53,7 +53,7 @@ public partial class Network
         /// the token may be retained by the circuit and used later to interact with the network in
         /// a thread-safe way.
         /// </summary>
-        public AccessToken NetworkToken => Authority.Token;
+        public AccessToken NetworkToken => Authority.token;
 
         private Network Authority => authority ?? throw new InvalidOperationException("The commission is counterfeit and was never issued by the network");
 
@@ -82,7 +82,7 @@ public partial class Network
         where TCircuitPort : unmanaged
         {
             SpiceName netName = SpiceName.Create(name).Unwrap(); // This unwrap causes a bonehead except that should not occur.
-            TCircuit circuit = new();
+            TCircuit circuit = new() { Host = NetworkToken };
             sub = Authority.subs.MakeNew(Authority, netName, circuit, NameSpace?.Prefix, buildScope);
             var innerCommission = new Com<TCircuitPort>(Authority, sub, port);
             circuit.Install(innerCommission);

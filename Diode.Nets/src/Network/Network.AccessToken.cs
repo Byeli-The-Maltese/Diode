@@ -10,7 +10,7 @@ public partial class Network
         // // // fields
         private static int idCounter = 0;
 
-        public readonly int idCode;
+        internal readonly int idCode;
 
         // // // constructor
 
@@ -26,10 +26,10 @@ public partial class Network
             ? accessed
             : new Er("Unable to find network");
 
-        public ImmutableList<ElectricalUpdate> Stimulate<T>(Net<T> net, Voltage<T> voltage, [CallerFilePath] string callerFilePath = "", [CallerMemberName] string callerMemberName = "", [CallerLineNumber] int callerLineNumber = 0)
+        public ImmutableList<ElectricalUpdate> Stimulate<T>(Net<T> net, T value, [CallerFilePath] string callerFilePath = "", [CallerMemberName] string callerMemberName = "", [CallerLineNumber] int callerLineNumber = 0)
         where T : IEquatable<T>
             => TryGetNetwork()
-            .Map(nw => nw.Stimulate(net, voltage, new CallSite(callerFilePath, callerMemberName, callerLineNumber)))
+            .Map(nw => nw.Stimulate(net, Voltage<T>.Strong(value), new CallSite(callerFilePath, callerMemberName, callerLineNumber)))
             .OrElse([]);
 
         public Voltage<T> Probe<T>(Net<T> net)

@@ -9,6 +9,7 @@ public partial class Network : IDisposable
     public const string TopLevel = nameof(TopLevel);
 
     private bool alreadyDisposed = false;
+    private readonly AccessToken token = IAccessTokenMint<AccessToken>.Mint();
     private readonly NodeCache nodes = new();
     private readonly SubCache subs = new();
     private readonly LinkCache links = new();
@@ -19,11 +20,7 @@ public partial class Network : IDisposable
 
     // // // constructor
 
-    public Network() => networkSingletonStore[Token] = this;
-
-    // // // properties
-
-    public AccessToken Token { get; } = IAccessTokenMint<AccessToken>.Mint();
+    private Network() => networkSingletonStore[token] = this;
 
     // // // methods
 
@@ -35,7 +32,7 @@ public partial class Network : IDisposable
         nodes.Dispose();
         subs.Dispose();
         links.Dispose();
-        networkSingletonStore.Remove(Token, out _);
+        networkSingletonStore.Remove(token, out _);
     }
 
     private void Push(VoltagePush push) => pushQueue.Enqueue(push);
@@ -54,17 +51,15 @@ public partial class Network : IDisposable
         }
     }
 
-    public static Network Create<TCircuit, TPort>(TPort port)
-    where TCircuit : ICircuit<TPort>, new()
-    where TPort : unmanaged
+    public static IDisposable Create<TCircuit>(out TCircuit topLevel)
+    where TCircuit : ICircuit<None>, new()
     {
         var network = new Network();
-        network.MintTopLevelCommission(port).Sub<TCircuit, TPort>(port, out _, TopLevel);
+        network.MintTopLevelCommission(None.Instance).Sub<TCircuit, None>(None.Instance, out Sub topLevelSub, TopLevel);
         network.FlushVoltages();
+        if (network.subs.TryGet(topLevelSub).Unwrap().Circuit is not TCircuit correctTopLevel)
+            throw new("The top level circuit is absent, even though it was just created. I give up...");
+        topLevel = correctTopLevel;
         return network;
     }
-
-    public static Network Create<TCircuit>()
-    where TCircuit : ICircuit, new()
-        => Create<TCircuit, None>(None.Instance);
 }
