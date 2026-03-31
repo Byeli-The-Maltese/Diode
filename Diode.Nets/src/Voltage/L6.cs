@@ -1,5 +1,8 @@
 namespace Diode.Nets;
 
+/// <summary>
+/// Used to represent the state of a node (net).
+/// </summary>
 public enum L6 : byte
 {
     /// <summary>
