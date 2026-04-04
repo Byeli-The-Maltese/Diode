@@ -33,7 +33,7 @@ public partial class Network
         /// </summary>
         private readonly Sub buildScope;
 
-        private readonly TPort port;
+        internal readonly TPort port;
 
         // // // constructor
 
@@ -42,18 +42,6 @@ public partial class Network
         static Com<TPort> IComSecret<Com<TPort>, TPort>.MintSecret(Network authority, TPort port) => new(authority, default, port);
 
         // // // properties
-        /// <summary>
-        /// This is the port carries information from the hierarchical circuit
-        /// parent that might be useful during installation
-        /// </summary>
-        public TPort Port => port;
-
-        /// <summary>
-        /// Gets an access token from the network that issued this commission. Unlike the commission,
-        /// the token may be retained by the circuit and used later to interact with the network in
-        /// a thread-safe way.
-        /// </summary>
-        public AccessToken NetworkToken => Authority.token;
 
         private Network Authority => authority ?? throw new InvalidOperationException("The commission is counterfeit and was never issued by the network");
 
@@ -77,7 +65,7 @@ public partial class Network
         where TCircuitPort : unmanaged
         {
             SpiceName netName = SpiceName.Create(name).Unwrap(); // This unwrap causes a bonehead except that should not occur.
-            TCircuit circuit = new() { Host = NetworkToken };
+            var circuit = new TCircuit();
             if (preInstallationModifier is not null)
                 preInstallationModifier(circuit);
             sub = Authority.subs.MakeNew(Authority, netName, circuit, NameSpace?.Prefix, buildScope, forExpander);
@@ -92,9 +80,25 @@ public partial class Network
             return this;
         }
 
+        /// <summary>
+        /// Gets the port that was passed from the parent circuit to this circuit. The port carries
+        /// parameters and net identities, which are used in circuit construction.
+        /// </summary>
         public readonly Com<TPort> GetPort(out TPort port)
         {
-            port = Port;
+            port = this.port;
+            return this;
+        }
+
+        /// <summary>
+        /// Gets an access token from the network that issued this commission. Unlike the commission,
+        /// the token may be retained by the circuit and used later to interact with the network in
+        /// a thread-safe way.
+        /// </summary>
+        /// <param name="accessToken">The access token that may be stored in a field</param>
+        public readonly Com<TPort> GetAccessToken(out AccessToken accessToken)
+        {
+            accessToken = Authority.token;
             return this;
         }
     }

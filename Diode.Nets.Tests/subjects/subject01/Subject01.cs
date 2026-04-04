@@ -5,13 +5,13 @@ namespace Diode.Nets.Tests;
 public class Subject01 : ICircuit
 {
     public Net<int> counter;
-
-    public Network.AccessToken Host { get; init; }
+    private Network.AccessToken host;
 
     public Network.Com<None> Install(Network.Com<None> com)
         => com
+        .GetAccessToken(out host)
         .Net(out counter)
         ;
 
-    public ImmutableList<ElectricalUpdate> StimulateNets() => Host.Stimulate(counter, 5);
+    public ImmutableList<ElectricalUpdate> StimulateNets() => host.Stimulate(counter, 5);
 }

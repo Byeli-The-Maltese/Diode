@@ -23,7 +23,7 @@ public partial class Network
             => com
             .GetBuildScope(out myScope)
             .GetPort(out myPort)
-            .TapFrom(GetGeneratorNet(com.Port))
+            .TapFrom(GetGeneratorNet(com.port))
             .Through(HandleGenerator)
             .IntoGround()
             ;
