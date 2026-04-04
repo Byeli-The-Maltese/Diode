@@ -54,38 +54,38 @@ public partial class Network
     {
         if (options.LogNodeLifetimes)
             stimHistory = stimHistory.Add(
-                new NodeLifetime(node.GetFullName(), LifetimeEvent.Construct)
+                new NodeLifetime(node.GetFullName(), LifeCycle.Create)
             );
     }
 
     private void LogNodeDestruction(NodeCache.Node node)
     {
         if (options.LogNodeLifetimes)
-            stimHistory = stimHistory.Add(new NodeLifetime(node.GetFullName(), LifetimeEvent.Dispose));
+            stimHistory = stimHistory.Add(new NodeLifetime(node.GetFullName(), LifeCycle.Destroy));
     }
 
     private void LogSubCreation(SubCache.Subcircuit subc)
     {
         if (options.LogSubcircuitLifetimes)
-            stimHistory = stimHistory.Add(new SubLifetime(subc.GetFullName(), LifetimeEvent.Construct));
+            stimHistory = stimHistory.Add(new SubLifetime(subc.GetFullName(), LifeCycle.Create));
     }
 
     private void LogSubDestruction(SubCache.Subcircuit subc)
     {
         if (options.LogSubcircuitLifetimes)
-            stimHistory = stimHistory.Add(new SubLifetime(subc.GetFullName(), LifetimeEvent.Dispose));
+            stimHistory = stimHistory.Add(new SubLifetime(subc.GetFullName(), LifeCycle.Destroy));
     }
 
     private void LogLinkCreation(LinkCache.Link link)
     {
         if (options.LogLinkLifetimes)
-            stimHistory = stimHistory.Add(new LinkLifetime(link.GetFullName(), LifetimeEvent.Construct));
+            stimHistory = stimHistory.Add(new LinkLifetime(link.GetFullName(), LifeCycle.Create));
     }
 
     private void LogLinkDestruction(LinkCache.Link link)
     {
         if (options.LogLinkLifetimes)
-            stimHistory = stimHistory.Add(new LinkLifetime(link.GetFullName(), LifetimeEvent.Dispose));
+            stimHistory = stimHistory.Add(new LinkLifetime(link.GetFullName(), LifeCycle.Destroy));
     }
 
     private void LogLinkDriveStart(LinkCache.Link link, L3 magnitude, object? value )

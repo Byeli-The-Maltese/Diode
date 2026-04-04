@@ -16,32 +16,32 @@ public sealed record NodeUpdate(string NodeName, L6 State, object? Value) : Elec
     };
 }
 
-public sealed record NodeLifetime(string NodeName, LifetimeEvent Event) : ElectricalUpdate
+public sealed record NodeLifetime(string NodeName, LifeCycle Event) : ElectricalUpdate
 {
     public override string ToString() => Event switch
     {
-        LifetimeEvent.Construct => $"NEW NET {NodeName}",
-        LifetimeEvent.Dispose => $"END NET {NodeName}",
+        LifeCycle.Create => $"NEW NET {NodeName}",
+        LifeCycle.Destroy => $"END NET {NodeName}",
         _ => throw new("Invalid state")
     };
 }
 
-public sealed record SubLifetime(string SubName, LifetimeEvent Event) : ElectricalUpdate
+public sealed record SubLifetime(string SubName, LifeCycle Event) : ElectricalUpdate
 {
     public override string ToString() => Event switch
     {
-        LifetimeEvent.Construct => $"NEW SUB {SubName}",
-        LifetimeEvent.Dispose => $"END SUB {SubName}",
+        LifeCycle.Create => $"NEW SUB {SubName}",
+        LifeCycle.Destroy => $"END SUB {SubName}",
         _ => throw new("Invalid state")
     };
 }
 
-public sealed record LinkLifetime(string FullName, LifetimeEvent Event) : ElectricalUpdate
+public sealed record LinkLifetime(string FullName, LifeCycle Event) : ElectricalUpdate
 {
     public override string ToString() => Event switch
     {
-        LifetimeEvent.Construct => $"NEW LINK {FullName}",
-        LifetimeEvent.Dispose => $"END LINK {FullName}",
+        LifeCycle.Create => $"NEW LINK {FullName}",
+        LifeCycle.Destroy => $"END LINK {FullName}",
         _ => throw new("Invalid state")
     };
 }
@@ -76,10 +76,4 @@ public sealed record NetworkVoltageFlush(int RecursionDepth) : ElectricalUpdate
 public sealed record NetworkStimulus(CallSite CallSite, int RecursionDepth) : ElectricalUpdate
 {
     public override string ToString() => $"STIM {CallSite.CallerName} #{RecursionDepth}";
-}
-
-public enum LifetimeEvent
-{
-    Construct,
-    Dispose
 }

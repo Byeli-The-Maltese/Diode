@@ -77,15 +77,35 @@ public partial class Network
         where TCircuit : ICircuit, new()
             => Sub<TCircuit, None>(None.Instance, out sub, name);
 
+        
         public readonly Com<TPort> Sub<TCircuit, TCircuitPort>(TCircuitPort port, out Sub sub, [CallerArgumentExpression(nameof(sub))] string name = "")
+        where TCircuit : ICircuit<TCircuitPort>, new()
+        where TCircuitPort : unmanaged
+            => InternalSub<TCircuit, TCircuitPort>(port, out sub, name, false);
+
+        internal readonly Com<TPort> InternalSub<TCircuit, TCircuitPort>(TCircuitPort port, out Sub sub, string name, bool forExpander)
         where TCircuit : ICircuit<TCircuitPort>, new()
         where TCircuitPort : unmanaged
         {
             SpiceName netName = SpiceName.Create(name).Unwrap(); // This unwrap causes a bonehead except that should not occur.
             TCircuit circuit = new() { Host = NetworkToken };
-            sub = Authority.subs.MakeNew(Authority, netName, circuit, NameSpace?.Prefix, buildScope);
+            sub = Authority.subs.MakeNew(Authority, netName, circuit, NameSpace?.Prefix, buildScope, forExpander);
             var innerCommission = new Com<TCircuitPort>(Authority, sub, port);
             circuit.Install(innerCommission);
+            return this;
+        }
+
+
+
+        public readonly Com<TPort> GetBuildScope(out Sub yourself)
+        {
+            yourself = buildScope;
+            return this;
+        }
+
+        public readonly Com<TPort> GetPort(out TPort port)
+        {
+            port = Port;
             return this;
         }
     }

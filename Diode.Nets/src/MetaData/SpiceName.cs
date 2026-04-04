@@ -3,6 +3,8 @@ namespace Diode.Nets;
 public record SpiceName
 {
     public const string SubSep = ".";
+    public const string SubExpanderSep1 = "<";
+    public const string SubExpanderSep2 = ">";
     public const string NetSep = ":";
     public const string LinkSep = "+";
 

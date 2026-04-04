@@ -40,6 +40,8 @@ public partial class Network
             .OrElse(default);
 
         public void SetOptions(Options options) => TryGetNetwork().Match(nw => nw.SetOptions(options));
+
+        internal Rs<Network> GetSecret() => TryGetNetwork();
     }
 
     private interface IAccessTokenMint<T>
