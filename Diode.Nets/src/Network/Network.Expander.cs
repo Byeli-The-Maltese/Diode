@@ -2,10 +2,9 @@ namespace Diode.Nets;
 
 public partial class Network
 {
-    internal sealed class Expander<TPort, TGenerator, TGenKey, TChild> : ICircuit<TPort>, IDisposable
-    where TPort : unmanaged, IHaveGeneratorNet<TGenerator, TGenKey>
-    where TGenerator : unmanaged, IGenerator, IEquatable<TGenerator>
-    where TGenKey : unmanaged, IEquatable<TGenKey>
+    internal sealed class Expander<TPort, TGeneratorNetValue, TChild> : ICircuit<TPort>, IDisposable
+    where TPort : unmanaged
+    where TGeneratorNetValue : unmanaged, IGenerator, IEquatable<TGeneratorNetValue>
     where TChild : ICircuit<TPort>, new()
     {
         // // // fields
@@ -16,15 +15,23 @@ public partial class Network
         // // // properties
         public AccessToken Host { get; init; }
 
+        public Func<TPort, Net<TGeneratorNetValue>>? GeneratorNetSelector { get; set;}
+
+
         // // // methods
         public Com<TPort> Install(Com<TPort> com)
             => com
             .GetBuildScope(out myScope)
             .GetPort(out myPort)
-            .TapFrom(com.Port.GeneratorNet)
+            .TapFrom(GetGeneratorNet(com.Port))
             .Through(HandleGenerator)
             .IntoGround()
             ;
+
+        private Net<TGeneratorNetValue> GetGeneratorNet(TPort port)
+            => GeneratorNetSelector is null
+            ? throw new("KeyingFunction was null. This should not happen")
+            : GeneratorNetSelector(port);
 
         private void DisposeAllChildren()
         {
@@ -38,12 +45,12 @@ public partial class Network
                 network.subs.TryGet(sub).Match(s => s.Dispose());
         }
 
-        private Voltage<None> HandleGenerator(Voltage<TGenerator> generator)
+        private Voltage<None> HandleGenerator(Voltage<TGeneratorNetValue> generator)
         {
             if (Host.GetSecret().ThenDont(out Network? network)) goto Abort;
             if (alreadyDisposed) goto Abort;
 
-            if (generator.Resolve().ThenDont(out TGenerator command))
+            if (generator.Resolve().ThenDont(out TGeneratorNetValue command))
             {
                 DisposeAllChildren();
                 goto Abort;
@@ -61,7 +68,7 @@ public partial class Network
 
                     network
                         .MintTopLevelCommission(myPort)
-                        .InternalSub<TChild, TPort>(myPort, out Sub childSub, childName, true);
+                        .InternalSub<TChild, TPort>(myPort, out Sub childSub, childName, true, null);
 
                     break;
 

@@ -55,7 +55,11 @@ public partial class Network : IDisposable
     where TCircuit : ICircuit<None>, new()
     {
         var network = new Network { options = options };
-        network.MintTopLevelCommission(None.Instance).Sub<TCircuit, None>(None.Instance, out Sub topLevelSub, TopLevel);
+        network
+            .MintTopLevelCommission(None.Instance)
+            .Plug(None.Instance)
+            .IntoNew<TCircuit>(out Sub topLevelSub, TopLevel)
+            ;
         network.FlushVoltages();
         if (network.subs.TryGet(topLevelSub).Unwrap().Circuit is not TCircuit correctTopLevel)
             throw new("The top level circuit is absent, even though it was just created. I give up...");
